@@ -1,0 +1,117 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user identity and role information.",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "level2", "level3"] },
+        "email": { "type": "string", "format": "email" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["username", "role"]
+    },
+    "CreationRequest": {
+      "title": "Creation Request",
+      "description": "A request to create a new user account, pending admin approval.",
+      "type": "object",
+      "properties": {
+        "requestedUsername": { "type": "string" },
+        "requestedRole": { "type": "string" },
+        "requesterUsername": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["requestedUsername", "requestedRole", "requesterUsername", "status"]
+    },
+    "IngestLog": {
+      "title": "Ingest Log",
+      "description": "Logs of data ingestion activities.",
+      "type": "object",
+      "properties": {
+        "procId": { "type": "string" },
+        "filename": { "type": "string" },
+        "userId": { "type": "string" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["procId", "filename", "userId", "status"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Messages exchanged with the Kani AI assistant.",
+      "type": "object",
+      "properties": {
+        "role": { "type": "string", "enum": ["user", "kani"] },
+        "content": { "type": "string" },
+        "userId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "lat": { "type": "string" },
+        "plevel": { "type": "string" }
+      },
+      "required": ["role", "content", "userId", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents."
+    },
+    "/creation_requests/{requestId}": {
+      "schema": "CreationRequest",
+      "description": "Pending user creation requests."
+    },
+    "/ingest_logs/{logId}": {
+      "schema": "IngestLog",
+      "description": "History of data ingestion."
+    },
+    "/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "AI assistant chat history."
+    },
+    "/raw_files/{fileId}": {
+      "schema": {
+        "title": "Raw File",
+        "type": "object",
+        "properties": {
+          "fileName": { "type": "string" },
+          "fileSize": { "type": "string" },
+          "fileType": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["fileName", "fileSize", "fileType"]
+      },
+      "description": "Raw data files uploaded by users."
+    },
+    "/insight_reports/{reportId}": {
+      "schema": {
+        "title": "Insight Report",
+        "type": "object",
+        "properties": {
+          "reportName": { "type": "string" },
+          "reportSize": { "type": "string" },
+          "reportType": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["reportName", "reportSize", "reportType"]
+      },
+      "description": "Generated insight reports."
+    },
+    "/ingest_history/{historyId}": {
+      "schema": {
+        "title": "Ingest History",
+        "type": "object",
+        "properties": {
+          "fileName": { "type": "string" },
+          "fileSize": { "type": "string" },
+          "status": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["fileName", "fileSize", "status"]
+      },
+      "description": "History of data ingestion for L3 users."
+    }
+  }
+}

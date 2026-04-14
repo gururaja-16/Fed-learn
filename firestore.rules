@@ -1,0 +1,175 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields:
+    //   - username: string (required)
+    //   - role: string (required, ['admin', 'level2', 'level3'])
+    //   - email: string (optional)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: creation_requests
+    // Fields:
+    //   - requestedUsername: string (required)
+    //   - requestedRole: string (required)
+    //   - requesterUsername: string (required)
+    //   - message: string (optional)
+    //   - status: string (required, ['pending', 'approved', 'rejected'])
+    //   - timestamp: timestamp (required)
+    //   - requesterUid: string (required)
+    //
+    // Collection: ingest_logs
+    // Fields:
+    //   - procId: string (required)
+    //   - filename: string (required)
+    //   - userId: string (required)
+    //   - status: string (required)
+    //   - timestamp: timestamp (required)
+    //
+    // Collection: messages
+    // Fields:
+    //   - role: string (required, ['user', 'kani'])
+    //   - content: string (required)
+    //   - userId: string (required)
+    //   - timestamp: timestamp (required)
+    //   - lat: string (optional)
+    //   - plevel: string (optional)
+    //
+    // Collection: raw_files
+    // Fields:
+    //   - fileName: string (required)
+    //   - fileSize: string (required)
+    //   - fileType: string (required)
+    //   - timestamp: timestamp (optional)
+    //
+    // Collection: insight_reports
+    // Fields:
+    //   - reportName: string (required)
+    //   - reportSize: string (required)
+    //   - reportType: string (required)
+    //   - timestamp: timestamp (optional)
+    //
+    // Collection: ingest_history
+    // Fields:
+    //   - fileName: string (required)
+    //   - fileSize: string (required)
+    //   - status: string (required)
+    //   - timestamp: timestamp (optional)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return true; // Bypassing for local-only auth mode
+    }
+
+    function isOwner(userId) {
+      return true; // Bypassing for local-only auth mode
+    }
+
+    function isAdmin() {
+      return true; // Bypassing for local-only auth mode
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['username', 'role', 'createdAt']) &&
+             data.username is string && data.username.size() > 0 && data.username.size() < 50 &&
+             data.role in ['admin', 'level2', 'level3'] &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidRequest(data) {
+      return data.keys().hasAll(['requestedUsername', 'requestedRole', 'requesterUsername', 'status', 'timestamp', 'requesterUid']) &&
+             data.requestedUsername is string && data.requestedUsername.size() > 0 &&
+             data.requestedRole in ['admin', 'level2', 'level3'] &&
+             data.requesterUsername is string &&
+             data.status in ['pending', 'approved', 'rejected'] &&
+             data.timestamp is timestamp;
+    }
+
+    function isValidLog(data) {
+      return data.keys().hasAll(['procId', 'filename', 'userId', 'status', 'timestamp']) &&
+             data.procId is string &&
+             data.filename is string && data.filename.size() < 255 &&
+             data.status is string &&
+             data.timestamp is timestamp;
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['role', 'content', 'userId', 'timestamp']) &&
+             data.role in ['user', 'kani'] &&
+             data.content is string && data.content.size() < 5000 &&
+             data.timestamp is timestamp;
+    }
+
+    function isValidRawFile(data) {
+      return data.keys().hasAll(['fileName', 'fileSize', 'fileType']) &&
+             data.fileName is string && data.fileName.size() < 255 &&
+             data.fileSize is string &&
+             data.fileType is string;
+    }
+
+    function isValidInsightReport(data) {
+      return data.keys().hasAll(['reportName', 'reportSize', 'reportType']) &&
+             data.reportName is string && data.reportName.size() < 255 &&
+             data.reportSize is string &&
+             data.reportType is string;
+    }
+
+    function isValidIngestHistory(data) {
+      return data.keys().hasAll(['fileName', 'fileSize', 'status']) &&
+             data.fileName is string && data.fileName.size() < 255 &&
+             data.fileSize is string &&
+             data.status is string;
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isValidUser(request.resource.data);
+      allow update: if isValidUser(request.resource.data);
+    }
+
+    match /creation_requests/{requestId} {
+      allow read: if true;
+      allow create: if isValidRequest(request.resource.data);
+      allow update: if isValidRequest(request.resource.data);
+      allow delete: if true;
+    }
+
+    match /ingest_logs/{logId} {
+      allow read: if true;
+      allow create: if isValidLog(request.resource.data);
+      allow update: if isValidLog(request.resource.data);
+    }
+
+    match /messages/{messageId} {
+      allow read: if true;
+      allow create: if isValidMessage(request.resource.data);
+      allow delete: if true;
+    }
+
+    match /raw_files/{fileId} {
+      allow read: if true;
+      allow create: if isValidRawFile(request.resource.data);
+    }
+
+    match /insight_reports/{reportId} {
+      allow read: if true;
+      allow create: if isValidInsightReport(request.resource.data);
+    }
+
+    match /ingest_history/{historyId} {
+      allow read: if true;
+      allow create: if isValidIngestHistory(request.resource.data);
+    }
+    
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}

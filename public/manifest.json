@@ -1,0 +1,21 @@
+{
+  "name": "Sovereign Vault",
+  "short_name": "Vault",
+  "description": "Enhanced data analysis with local LLM and federated privacy.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#041C1C",
+  "theme_color": "#00FF41",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/vault/192/192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://picsum.photos/seed/vault/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

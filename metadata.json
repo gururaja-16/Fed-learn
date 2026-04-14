@@ -1,0 +1,5 @@
+{
+  "name": "Sovereign Vault",
+  "description": "Enhanced data analysis with local LLM and federated privacy. Fully offline capable with local inference shards.",
+  "requestFramePermissions": []
+}
